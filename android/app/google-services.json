@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "849335743106",
+    "project_id": "mis-tracker-85ebd",
+    "storage_bucket": "mis-tracker-85ebd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:849335743106:android:0a11858bd62f2e4125ba9b",
+        "android_client_info": {
+          "package_name": "com.ritwiz.mis_tracker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA42YmKr_OSph6fM7U8ljO6Na5E_nAS78Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
