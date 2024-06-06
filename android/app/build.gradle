@@ -23,7 +23,7 @@ if (flutterVersionName == null) {
 }
 
 android {
-    namespace "com.example.mis_tracker"
+    namespace "com.ritwiz.mis_tracker"
     compileSdk flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
 
