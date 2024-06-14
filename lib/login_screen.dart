@@ -1,10 +1,12 @@
-// ignore_for_file: use_full_hex_values_for_flutter_colors, sized_box_for_whitespace, prefer_const_constructors, avoid_unnecessary_containers, prefer_const_literals_to_create_immutables, file_names, unnecessary_import, unused_import, unused_local_variable, avoid_print, use_build_context_synchronously
+// ignore_for_file: use_full_hex_values_for_flutter_colors, sized_box_for_whitespace, prefer_const_constructors, avoid_unnecessary_containers, prefer_const_literals_to_create_immutables, file_names, unnecessary_import, unused_import, unused_local_variable, avoid_print, use_build_context_synchronously, empty_catches
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:mis_tracker/home_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -19,7 +21,9 @@ class _LoginScreenState extends State<LoginScreen> {
   double screenHeight = 0;
   double screenWidth = 0;
 
-  Color primary = const Color(0xffeef444);
+  Color primary = Color.fromARGB(255, 239, 48, 48);
+
+  late SharedPreferences sharedPreferences;
 
   @override
   void dispose() {
@@ -82,10 +86,10 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                //Text Widget for 'Email ID'
-                fieldTitle('Email ID'),
-                //TextField for 'Email ID'
-                customField('Enter your Email ID', idController, false),
+                //Text Widget for 'Username'
+                fieldTitle('Username'),
+                //TextField for 'Username'
+                customField('Enter your Username', idController, false),
                 //Text Widget for 'Password'
                 fieldTitle('Password'),
                 //TextField for 'Password'
@@ -94,6 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 Center(
                   child: GestureDetector(
                     onTap: () async {
+                      FocusScope.of(context).unfocus();
                       String id = idController.text.trim();
                       String pass = passController.text.trim();
 
@@ -110,12 +115,43 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         );
                       } else {
-                        QuerySnapshot snap = await FirebaseFirestore.instance
-                            .collection('Employee_Credentials')
-                            .where('id', isEqualTo: id)
-                            .get();
+                        try {
+                          QuerySnapshot snap = await FirebaseFirestore.instance
+                              .collection('Employee_Credentials')
+                              .where('id', isEqualTo: id)
+                              .get();
 
-                        print(snap.docs[0]['pass']);
+                          if (snap.docs.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text("Employee ID doesn't exist!"),
+                              ),
+                            );
+                          } else {
+                            if (pass == snap.docs[0]['pass']) {
+                              sharedPreferences =
+                                  await SharedPreferences.getInstance();
+
+                              sharedPreferences
+                                  .setString('employeeId', id).then((_) {
+                                Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => HomeScreen()));
+                              });
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text("Incorrect password!"),
+                                ),
+                              );
+                            }
+                          }
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("An error occurred!")),
+                          );
+                        }
                       }
                     },
                     child: Container(

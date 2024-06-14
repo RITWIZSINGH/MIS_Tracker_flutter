@@ -1,4 +1,4 @@
-package com.example.mis_tracker
+package com.ritwiz.mis_tracker
 
 import io.flutter.embedding.android.FlutterActivity
 
