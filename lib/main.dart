@@ -1,20 +1,19 @@
-// ignore_for_file: unused_import, unused_element, empty_catches, prefer_const_constructors
-
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:mis_tracker/home_screen.dart';
 import 'package:mis_tracker/login_Screen.dart';
+import 'package:mis_tracker/target_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const MyApp());
+  runApp( MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -23,7 +22,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const KeyboardVisibilityProvider(child: AuthCheck()),
+      home: KeyboardVisibilityProvider(
+        child: ChangeNotifierProvider(
+          create: (BuildContext context) => TargetData(),
+          // ignore: prefer_const_constructors
+          child: MaterialApp(home: AuthCheck()),
+        ),
+      ),
     );
   }
 }
@@ -39,19 +44,20 @@ class _AuthCheckState extends State<AuthCheck> {
   bool userAvailable = false;
   late SharedPreferences sharedPreferences;
   @override
-  void initState() { 
+  void initState() {
     super.initState();
     _getCurrentUser();
   }
+
   void _getCurrentUser() async {
     sharedPreferences = await SharedPreferences.getInstance();
-    try{
-      if(sharedPreferences.getString('employeeId')!= null){
+    try {
+      if (sharedPreferences.getString('employeeId') != null) {
         setState(() {
           userAvailable = true;
         });
       }
-    }catch(e){
+    } catch (e) {
       setState(() {
         userAvailable = false;
       });
@@ -60,6 +66,7 @@ class _AuthCheckState extends State<AuthCheck> {
 
   @override
   Widget build(BuildContext context) {
+    // ignore: prefer_const_constructors
     return userAvailable ? HomeScreen() : LoginScreen();
   }
 }
