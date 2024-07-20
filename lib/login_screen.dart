@@ -1,12 +1,12 @@
-// ignore_for_file: use_full_hex_values_for_flutter_colors, sized_box_for_whitespace, prefer_const_constructors, avoid_unnecessary_containers, prefer_const_literals_to_create_immutables, file_names, unnecessary_import, unused_import, unused_local_variable, avoid_print, use_build_context_synchronously, empty_catches
-
+// ignore_for_file: use_full_hex_values_for_flutter_colors, sized_box_for_whitespace, prefer_const_constructors, avoid_unnecessary_containers, prefer_const_literals_to_create_immutables, file_names, unnecessary_import, unused_import, unused_local_variable, avoid_print, use_build_context_synchronously, empty_catches, unnecessary_null_comparison
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:mis_tracker/home_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -25,6 +25,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   late SharedPreferences sharedPreferences;
 
+  final _auth = FirebaseAuth.instance;
+  final _firestore = FirebaseFirestore.instance.collection('Employee_Credentials');
+
   @override
   void dispose() {
     idController.dispose();
@@ -42,11 +45,8 @@ class _LoginScreenState extends State<LoginScreen> {
       resizeToAvoidBottomInset: false,
       body: Column(
         children: [
-          //Person icon container
           isKeyboardVisible
-              ? SizedBox(
-                  height: screenHeight / 16,
-                )
+              ? SizedBox(height: screenHeight / 16,)
               : Container(
                   height: screenHeight / 2.5,
                   width: screenWidth,
@@ -64,7 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
-          //Container for Login Text
+
           Container(
             margin: EdgeInsets.only(
               top: screenHeight / 15,
@@ -78,6 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
           ),
+
           Container(
             alignment: Alignment.centerLeft,
             margin: EdgeInsets.symmetric(
@@ -86,15 +87,10 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                //Text Widget for 'Username'
                 fieldTitle('Username'),
-                //TextField for 'Username'
                 customField('Enter your Username', idController, false),
-                //Text Widget for 'Password'
                 fieldTitle('Password'),
-                //TextField for 'Password'
                 customField('Enter your Password', passController, true),
-                //Login Button
                 Center(
                   child: GestureDetector(
                     onTap: () async {
@@ -104,52 +100,69 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       if (id.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text("Username is still empty!"),
-                          ),
+                          SnackBar(content: Text("Username is still empty!")),
                         );
                       } else if (pass.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text("Password is still empty!"),
-                          ),
+                          SnackBar(content: Text("Password is still empty!")),
                         );
                       } else {
                         try {
-                          QuerySnapshot snap = await FirebaseFirestore.instance
-                              .collection('Employee_Credentials')
-                              .where('id', isEqualTo: id)
-                              .get();
+                          QuerySnapshot snap = await _firestore.where('id', isEqualTo: id).get();
 
                           if (snap.docs.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text("Employee ID doesn't exist!"),
-                              ),
-                            );
+                            try {
+                              print("Attempting to create user with email: $id");
+                              UserCredential userCredential = await _auth.createUserWithEmailAndPassword(email: id, password: pass);
+                              print("User created successfully in Firebase Auth");
+
+                              try {
+                                await _firestore.add({
+                                  'id': id,
+                                  'pass': pass,
+                                });
+                                print("User data added to Firestore successfully");
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text("Registration successful!")),
+                                );
+
+                                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
+                              } catch (firestoreError) {
+                                print("Firestore error: $firestoreError");
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text("Error saving user data: ${firestoreError.toString()}")),
+                                );
+                              }
+                            } catch (e) {
+                              print("Detailed error: $e");
+                              if (e is FirebaseAuthException) {
+                                print("Firebase Auth Error Code: ${e.code}");
+                                print("Firebase Auth Error Message: ${e.message}");
+                              }
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text("Registration failed: ${e.toString()}")),
+                              );
+                            }
                           } else {
                             if (pass == snap.docs[0]['pass']) {
-                              sharedPreferences =
-                                  await SharedPreferences.getInstance();
-
-                              sharedPreferences
-                                  .setString('employeeId', id).then((_) {
+                              sharedPreferences = await SharedPreferences.getInstance();
+                              sharedPreferences.setString('employeeId', id).then((_) {
                                 Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => HomeScreen()));
+                                  context,
+                                  MaterialPageRoute(builder: (context) => HomeScreen()),
+                                );
                               });
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text("Incorrect password!"),
-                                ),
+                                SnackBar(content: Text("Incorrect password!")),
                               );
                             }
                           }
                         } catch (e) {
+                          print("General error: $e");
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("An error occurred!")),
+                            SnackBar(content: Text("An error occurred: ${e.toString()}")),
                           );
                         }
                       }
@@ -160,13 +173,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: screenWidth / 2,
                       decoration: BoxDecoration(
                         color: primary,
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(30),
-                        ),
+                        borderRadius: BorderRadius.all(Radius.circular(30)),
                       ),
                       child: Center(
                         child: Text(
-                          'LOGIN',
+                          'LOGIN/REGISTER',
                           style: TextStyle(
                             color: Colors.white,
                             fontFamily: "NexaBold",
@@ -177,7 +188,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -199,8 +210,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget customField(
-      String hint, TextEditingController controller, bool obscure) {
+  Widget customField(String hint, TextEditingController controller, bool obscure) {
     return Container(
       width: screenWidth,
       margin: EdgeInsets.only(bottom: 12),
