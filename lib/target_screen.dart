@@ -1,4 +1,4 @@
-// ignore_for_file: use_key_in_widget_constructors, prefer_const_constructors
+// ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -9,14 +9,20 @@ class TargetScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final targetData = Provider.of<TargetData>(context);
-    final targetProgress = List<int>.filled(targetData.targetNames.length, 0);
-
-    double screenWidth = MediaQuery.of(context).size.width;
-    Color primary = Color.fromARGB(255, 239, 48, 48);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final primary = Color.fromARGB(255, 239, 48, 48);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Target Tracker'),
+        elevation: 20.0,
+        shadowColor: Colors.black54,
+        title: Text(
+          'Target Tracker',
+          style: TextStyle(
+            color: Colors.white,
+            fontFamily: "NexaBold",
+          ),
+        ),
         backgroundColor: primary,
       ),
       body: Padding(
@@ -44,7 +50,7 @@ class TargetScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 10),
                     Text(
-                      '${targetProgress[index]}%',
+                      '${targetData.getTargetProgress(index) * 100}%',
                       style: TextStyle(
                         fontSize: screenWidth / 18,
                         fontFamily: "NexaBold",
@@ -52,15 +58,15 @@ class TargetScreen extends StatelessWidget {
                       ),
                     ),
                     Slider(
-                      value: targetProgress[index].toDouble(),
+                      value: targetData.getTargetProgress(index),
                       min: 0,
-                      max: 100,
+                      max: 1,
                       divisions: 100,
                       activeColor: primary,
                       inactiveColor: Colors.grey,
                       onChanged: (value) {
-                        TargetData().saveTargetProgress(index, value.toDouble());
-                      }
+                        targetData.saveTargetProgress(index, value);
+                      },
                     ),
                   ],
                 ),
@@ -74,6 +80,7 @@ class TargetScreen extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           FloatingActionButton(
+            heroTag: 'addTargetFab',
             onPressed: () async {
               final newTargetName = await Navigator.push(
                 context,
@@ -91,6 +98,7 @@ class TargetScreen extends StatelessWidget {
           ),
           SizedBox(height: 10),
           FloatingActionButton(
+            heroTag: 'sendDataFab',
             onPressed: () {
               // Existing function for sending data (optional)
             },

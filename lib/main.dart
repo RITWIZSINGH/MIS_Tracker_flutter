@@ -1,3 +1,5 @@
+// ignore_for_file: use_key_in_widget_constructors, prefer_const_constructors, duplicate_ignore
+
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
@@ -9,8 +11,14 @@ import 'package:provider/provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  runApp( MyApp());
+  await Firebase.initializeApp(
+    options: FirebaseOptions(
+        apiKey: "AIzaSyDs3dMFKM-iIXYDutZ90gDiDzMNE7h0OdI",
+        appId: "1:849335743106:web:3807e79a32ae360625ba9b",
+        messagingSenderId: "849335743106",
+        projectId: "mis-tracker-85ebd"),
+  );
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {

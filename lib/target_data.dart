@@ -1,29 +1,27 @@
 import 'package:flutter/foundation.dart';
-import 'dart:collection';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:collection';
 
 class TargetData extends ChangeNotifier {
-  final List<String> _targetNames = [
-   
-  ];
+  final List<String> _targetNames = [];
+  final Map<int, double> _targetProgress = {}; // Store progress as a map
 
   UnmodifiableListView<String> get targetNames => UnmodifiableListView(_targetNames);
 
   void addTarget(String name) {
     _targetNames.add(name);
-    notifyListeners(); // Notify listeners about the change
+    notifyListeners();
   }
 
- void saveTargetProgress(int index, double progress) async {
-    // Implement your logic to save progress here
-    // This could involve storing data in a local database, cloud storage, etc.
-    // For example, using SharedPreferences for local storage:
+  double getTargetProgress(int index) {
+    return _targetProgress[index] ?? 0.0; // Default to 0 if not found
+  }
+
+  Future<void> saveTargetProgress(int index, double progress) async {
+    _targetProgress[index] = progress;
+    notifyListeners();
 
     final sharedPreferences = await SharedPreferences.getInstance();
     await sharedPreferences.setDouble('target_$index', progress);
-
-    // ignore: avoid_print
-    print('Target $index progress saved: $progress'); // Placeholder for now
-    notifyListeners(); // Notify listeners about the change (optional)
   }
 }
