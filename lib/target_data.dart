@@ -4,7 +4,7 @@ import 'dart:collection';
 
 class TargetData extends ChangeNotifier {
   final List<String> _targetNames = [];
-  final Map<int, double> _targetProgress = {}; // Store progress as a map
+  final Map<int, double> _targetProgress = {};
 
   UnmodifiableListView<String> get targetNames => UnmodifiableListView(_targetNames);
 
@@ -14,7 +14,7 @@ class TargetData extends ChangeNotifier {
   }
 
   double getTargetProgress(int index) {
-    return _targetProgress[index] ?? 0.0; // Default to 0 if not found
+    return _targetProgress[index] ?? 0.0; 
   }
 
   Future<void> saveTargetProgress(int index, double progress) async {
