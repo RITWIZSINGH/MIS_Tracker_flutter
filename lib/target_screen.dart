@@ -1,11 +1,14 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, use_key_in_widget_constructors, must_be_immutable
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mis_tracker/target_data.dart';
 import 'package:mis_tracker/add_target_screen.dart';
+import 'package:mis_tracker/calendar_screen.dart';
 
 class TargetScreen extends StatelessWidget {
+
+  String currentDay = getcurrentDay();
   @override
   Widget build(BuildContext context) {
     final targetData = Provider.of<TargetData>(context);
@@ -17,7 +20,7 @@ class TargetScreen extends StatelessWidget {
         elevation: 20.0,
         shadowColor: Colors.black54,
         title: Text(
-          'Target Tracker',
+          'Target Tracker ($currentDay)',
           style: TextStyle(
             color: Colors.white,
             fontFamily: "NexaBold",
