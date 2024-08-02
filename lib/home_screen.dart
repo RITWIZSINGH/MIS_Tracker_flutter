@@ -1,4 +1,4 @@
-// ignore_for_file: unnecessary_import, prefer_const_constructors, unused_local_variable, unused_import, prefer_const_literals_to_create_immutables
+// ignore_for_file: unnecessary_import, prefer_const_constructors, unused_local_variable, unused_import, prefer_const_literals_to_create_immutables, use_key_in_widget_constructors, use_super_parameters
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,13 +9,17 @@ import 'package:mis_tracker/profile_screen.dart';
 import 'package:mis_tracker/target_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final String? employeeId;
+
+  const HomeScreen({Key? key,  this.employeeId}) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  
+
   double screenHeight = 0;
   double screenWidth = 0;
 
@@ -38,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
         index: currentIndex,
         children: [
           CalendarScreen(),
-          TargetScreen(),
+          TargetScreen(employeeId: widget.employeeId),
           ProfileScreen(),
         ],
       ),

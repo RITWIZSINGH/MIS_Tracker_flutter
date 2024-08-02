@@ -127,7 +127,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   SnackBar(content: Text("Registration successful!")),
                                 );
 
-                                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
+                                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen(employeeId: id,)));
                               } catch (firestoreError) {
                                 print("Firestore error: $firestoreError");
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -150,8 +150,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               sharedPreferences.setString('employeeId', id).then((_) {
                                 Navigator.pushReplacement(
                                   context,
-                                  MaterialPageRoute(builder: (context) => HomeScreen()),
-                                );
+                                  MaterialPageRoute(builder: (context) => HomeScreen(employeeId: id,),
+                                ));
                               });
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(

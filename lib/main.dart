@@ -77,6 +77,7 @@ class _AuthCheckState extends State<AuthCheck> {
   @override
   Widget build(BuildContext context) {
     // ignore: prefer_const_constructors
-    return userAvailable ? HomeScreen() : LoginScreen();
+    // return userAvailable ? HomeScreen() : LoginScreen();
+    return HomeScreen();
   }
 }

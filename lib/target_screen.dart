@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, use_key_in_widget_constructors, must_be_immutable, unused_element, avoid_print
+// ignore_for_file: prefer_const_constructors, use_key_in_widget_constructors, must_be_immutable, unused_element, avoid_print, unused_import, use_super_parameters
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -9,17 +9,31 @@ import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 
 class TargetScreen extends StatefulWidget {
+  final String? employeeId;
 
+  const TargetScreen({Key? key, required this.employeeId}) : super(key: key);
   @override
   State<TargetScreen> createState() => _TargetScreenState();
 }
 
-  class _TargetScreenState extends State<TargetScreen> {
+class _TargetScreenState extends State<TargetScreen> {
+  late String? employeeName;
+  @override
+  void initState() {
+    super.initState();
+    employeeName = widget.employeeId;
+    if (employeeName != null) {
+      employeeNameController.text = employeeName!;
+    } else {
+      // Handle the null case, e.g., show an error or set a default value
+      employeeNameController.text = "Unknown"; // Example default value
+    }
+  }
+
   String currentDay = getcurrentDay();
   final _formKey = GlobalKey<FormState>();
 
-  /// Controllers
-  TextEditingController dateController = TextEditingController();
+  // Controllers
   TextEditingController employeeNameController = TextEditingController();
   TextEditingController targetNamesController = TextEditingController();
   TextEditingController progressController = TextEditingController();
@@ -28,15 +42,20 @@ class TargetScreen extends StatefulWidget {
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       const String scriptURL =
-          'https://script.google.com/macros/s/AKfycbyNGGiTDchb2LxuyF0ryMgrJhndIZa3wkMNlIikXiNCLnSjY78J/exec';
-
+          "https://script.google.com/macros/s/AKfycbzECDq3Ygd2vd3I1TbhdHYfQ26tCM10utoC3WqOuGm68T8taBhLpepstlFioT45E-2Q/exec";
       String tempdate = currentDay;
-      String tempemployeeName = employeeNameController.text;
+      print(tempdate);
+      String tempemployeeName = employeeName!;
+      print(tempemployeeName);
       String temptargetNames = targetNamesController.text;
+      print(temptargetNames);
       String tempprogress = progressController.text;
+      print(tempprogress);
       String temptotal = totalController.text;
+      print(temptotal);
 
-      String queryString = "?date=$tempdate&employeeName=$tempemployeeName&targetNames=$temptargetNames&progress=$tempprogress&total=$temptotal";
+      String queryString =
+          "?date=$tempdate&employeeName=$tempemployeeName&targetNames=$temptargetNames&progress=$tempprogress&total=$temptotal";
 
       var finalURI = Uri.parse(scriptURL + queryString);
       var response = await http.get(finalURI);
@@ -48,7 +67,6 @@ class TargetScreen extends StatefulWidget {
       }
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -95,13 +113,20 @@ class TargetScreen extends StatefulWidget {
                         ),
                       ),
                       SizedBox(height: 10),
-                      Text(
-                        '${targetData.getTargetProgress(index) * 100}%',
-                        style: TextStyle(
-                          fontSize: screenWidth / 18,
-                          fontFamily: "NexaBold",
-                          color: primary,
-                        ),
+                      Row(
+                        children: [
+                          Text(
+                            '${targetData.getTargetProgress(index) * 100}%',
+                            style: TextStyle(
+                              fontSize: screenWidth / 18,
+                              fontFamily: "NexaBold",
+                              color: primary,
+                            ),
+                          ),
+                          TextFormField(
+                            decoration: InputDecoration(fillColor: Colors.white),
+                          )
+                        ],
                       ),
                       Slider(
                         value: targetData.getTargetProgress(index),
@@ -146,9 +171,7 @@ class TargetScreen extends StatefulWidget {
           SizedBox(height: 10),
           FloatingActionButton(
             heroTag: 'sendDataFab',
-            onPressed: () {
-              _submitForm();
-            },
+            onPressed: _submitForm,
             backgroundColor: primary,
             child: Icon(
               Icons.send,
@@ -161,6 +184,3 @@ class TargetScreen extends StatefulWidget {
   }
 }
 
-void submitData() {
-
-}
