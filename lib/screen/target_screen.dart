@@ -2,9 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:mis_tracker/target_data.dart';
-import 'package:mis_tracker/add_target_screen.dart';
-import 'package:mis_tracker/calendar_screen.dart';
+import 'package:mis_tracker/models/target_data.dart';
+import 'package:mis_tracker/screen/add_target_screen.dart';
+import 'package:mis_tracker/screen/calendar_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 
@@ -183,4 +183,3 @@ class _TargetScreenState extends State<TargetScreen> {
     );
   }
 }
-

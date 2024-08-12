@@ -4,9 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:mis_tracker/calendar_screen.dart';
-import 'package:mis_tracker/profile_screen.dart';
-import 'package:mis_tracker/target_screen.dart';
+import 'package:mis_tracker/screen/calendar_screen.dart';
+import 'package:mis_tracker/screen/profile_screen.dart';
+import 'package:mis_tracker/screen/target_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final String? employeeId;
