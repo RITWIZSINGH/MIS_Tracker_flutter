@@ -113,20 +113,13 @@ class _TargetScreenState extends State<TargetScreen> {
                         ),
                       ),
                       SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Text(
-                            '${targetData.getTargetProgress(index) * 100}%',
-                            style: TextStyle(
-                              fontSize: screenWidth / 18,
-                              fontFamily: "NexaBold",
-                              color: primary,
-                            ),
-                          ),
-                          TextFormField(
-                            decoration: InputDecoration(fillColor: Colors.white),
-                          )
-                        ],
+                      Text(
+                        '${targetData.getTargetProgress(index) * 100}%',
+                        style: TextStyle(
+                          fontSize: screenWidth / 18,
+                          fontFamily: "NexaBold",
+                          color: primary,
+                        ),
                       ),
                       Slider(
                         value: targetData.getTargetProgress(index),
