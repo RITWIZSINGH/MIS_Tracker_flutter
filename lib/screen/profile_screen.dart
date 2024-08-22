@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, unnecessary_import, prefer_const_literals_to_create_immutables, unused_import, use_build_context_synchronously
+// ignore_for_file: prefer_const_constructors, unnecessary_import, prefer_const_literals_to_create_immutables, unused_import
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
@@ -16,13 +16,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
   double screenWidth = 0;
 
   Color primary = const Color.fromARGB(255, 239, 48, 48);
-  
+
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _employeeIdController = TextEditingController();
   File? _imageFile;
+  String? _storedImagePath;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
+    final String employeeId = _employeeIdController.text;
+
+    // Check if employeeId is empty, meaning no data was entered yet
+    if (employeeId.isEmpty) return;
+
+    try {
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance
+          .collection('profiles')
+          .doc(employeeId)
+          .get();
+
+      if (snapshot.exists) {
+        setState(() {
+          _nameController.text = snapshot['name'];
+          _employeeIdController.text = snapshot['employeeId'];
+          _storedImagePath = snapshot['imagePath'];
+          if (_storedImagePath != null) {
+            _imageFile = File(_storedImagePath!);
+          }
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Failed to load profile: $e'),
+      ));
+    }
+  }
 
   Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         _imageFile = File(pickedFile.path);
@@ -37,7 +74,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (name.isNotEmpty && employeeId.isNotEmpty && _imageFile != null) {
       try {
         // Store the data in Firestore
-        await FirebaseFirestore.instance.collection('profiles').doc(employeeId).set({
+        await FirebaseFirestore.instance
+            .collection('profiles')
+            .doc(employeeId)
+            .set({
           'name': name,
           'employeeId': employeeId,
           'imagePath': _imageFile!.path,
@@ -59,11 +99,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   SizedBox(height: 10),
                   Text(
                     'Name: $name',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   Text(
                     'Employee ID: $employeeId',
-                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                    style: TextStyle(
+                        fontSize: 16, color: Colors.grey[600]),
                   ),
                 ],
               ),
@@ -90,7 +132,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ));
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -114,9 +156,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 onTap: _pickImage,
                 child: CircleAvatar(
                   radius: 70.0,
-                  backgroundImage: _imageFile != null ? FileImage(_imageFile!) : null,
-                  child: _imageFile == null
-                      ? Icon(Icons.camera_alt, size: 40, color: Colors.grey)
+                  backgroundImage: _imageFile != null
+                      ? FileImage(_imageFile!)
+                      : _storedImagePath != null
+                          ? FileImage(File(_storedImagePath!))
+                          : null,
+                  child: _imageFile == null && _storedImagePath == null
+                      ? Icon(Icons.camera_alt,
+                          size: 40, color: Colors.grey)
                       : null,
                 ),
               ),
@@ -150,7 +197,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 24, vertical: 12),
                   child: Text(
                     'Save',
                     style: TextStyle(
