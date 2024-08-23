@@ -36,48 +36,25 @@ class MyApp extends StatelessWidget {
         child: ChangeNotifierProvider(
           create: (BuildContext context) => TargetData(),
           // ignore: prefer_const_constructors
-          child: MaterialApp(home: AuthCheck()),
+          child: MaterialApp(home: LandingScreen()),
         ),
       ),
     );
   }
 }
 
-class AuthCheck extends StatefulWidget {
-  const AuthCheck({super.key});
+class LandingScreen extends StatefulWidget {
+  const LandingScreen({super.key});
 
   @override
-  State<AuthCheck> createState() => _AuthCheckState();
+  State<LandingScreen> createState() => _LandingScreenState();
 }
 
-class _AuthCheckState extends State<AuthCheck> {
-  bool userAvailable = false;
-  late SharedPreferences sharedPreferences;
-  @override
-  void initState() {
-    super.initState();
-    _getCurrentUser();
-  }
-
-  void _getCurrentUser() async {
-    sharedPreferences = await SharedPreferences.getInstance();
-    try {
-      if (sharedPreferences.getString('employeeId') != null) {
-        setState(() {
-          userAvailable = true;
-        });
-      }
-    } catch (e) {
-      setState(() {
-        userAvailable = false;
-      });
-    }
-  }
+class _LandingScreenState extends State<LandingScreen> {
+ 
 
   @override
   Widget build(BuildContext context) {
-    // ignore: prefer_const_constructors
-    // return userAvailable ? HomeScreen() : LoginScreen();
     return HomeScreen();
   }
 }
