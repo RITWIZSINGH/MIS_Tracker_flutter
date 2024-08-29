@@ -30,14 +30,16 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 239, 48, 48),
+        elevation: 20.0,
+        shadowColor: Colors.black54,
         title: Text(
-          'Calendar',
+          'CALENDAR',
           style: TextStyle(
-            fontFamily: "NexaBold",
             color: Colors.white,
+            fontFamily: "NexaBold",
           ),
         ),
+        backgroundColor: Color.fromARGB(255, 239, 48, 48),
       ),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(0, 40, 0, 10),
