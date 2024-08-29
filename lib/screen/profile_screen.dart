@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, unnecessary_import, prefer_const_literals_to_create_immutables, unused_import, use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
@@ -136,14 +137,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        elevation: 20.0,
+        shadowColor: Colors.black54,
+        title: Text(
+          'SAVE YOUR PROFILE',
+          style: TextStyle(
+            color: Colors.white,
+            fontFamily: "NexaBold",
+          ),
+        ),
+        backgroundColor: primary,
+      ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(15.0),
           child: Column(
             children: [
+              SizedBox(height: 25,),
               Center(
                 child: Text(
-                  'Profile',
+                  'PROFILE',
                   style: TextStyle(
                       color: Colors.black,
                       fontSize: 24,
