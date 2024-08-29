@@ -32,7 +32,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _loadProfile() async {
     final String employeeId = _employeeIdController.text;
 
-    // Check if employeeId is empty, meaning no data was entered yet
     if (employeeId.isEmpty) return;
 
     try {
@@ -74,7 +73,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     if (name.isNotEmpty && employeeId.isNotEmpty && _imageFile != null) {
       try {
-        // Store the data in Firestore
         await FirebaseFirestore.instance
             .collection('profiles')
             .doc(employeeId)
@@ -84,7 +82,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           'imagePath': _imageFile!.path,
         });
 
-        // Show the data in a beautiful way
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -122,7 +119,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           },
         );
       } catch (e) {
-        // Handle errors
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('Failed to save profile: $e'),
         ));
@@ -150,81 +146,90 @@ class _ProfileScreenState extends State<ProfileScreen> {
         backgroundColor: primary,
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: Column(
-            children: [
-              SizedBox(height: 25,),
-              Center(
-                child: Text(
-                  'PROFILE',
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: "NexaRegular"),
-                ),
+        child: KeyboardVisibilityBuilder(
+          builder: (context, isKeyboardVisible) {
+            return SingleChildScrollView(
+              padding: EdgeInsets.only(
+                left: 15.0,
+                right: 15.0,
+                bottom: isKeyboardVisible ? 20.0 : 0.0,
               ),
-              SizedBox(height: 20.0),
-              GestureDetector(
-                onTap: _pickImage,
-                child: CircleAvatar(
-                  radius: 70.0,
-                  backgroundImage: _imageFile != null
-                      ? FileImage(_imageFile!)
-                      : _storedImagePath != null
-                          ? FileImage(File(_storedImagePath!))
-                          : null,
-                  child: _imageFile == null && _storedImagePath == null
-                      ? Icon(Icons.camera_alt,
-                          size: 40, color: Colors.grey)
-                      : null,
-                ),
-              ),
-              SizedBox(height: 20.0),
-              TextField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: "Name",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-              SizedBox(height: 20.0),
-              TextField(
-                controller: _employeeIdController,
-                decoration: InputDecoration(
-                  labelText: "Employee ID",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-              SizedBox(height: 30.0),
-              ElevatedButton(
-                onPressed: _saveProfile,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 24, vertical: 12),
-                  child: Text(
-                    'Save',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: "NexaRegular",
+              child: Column(
+                children: [
+                  SizedBox(height: 25),
+                  Center(
+                    child: Text(
+                      'PROFILE',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: "NexaRegular",
+                      ),
                     ),
                   ),
-                ),
+                  SizedBox(height: 20.0),
+                  GestureDetector(
+                    onTap: _pickImage,
+                    child: CircleAvatar(
+                      radius: 90,
+                      backgroundImage: _imageFile != null
+                          ? FileImage(_imageFile!)
+                          : _storedImagePath != null
+                              ? FileImage(File(_storedImagePath!))
+                              : null,
+                      child: _imageFile == null && _storedImagePath == null
+                          ? Icon(Icons.camera_alt,
+                              size: 40, color: Colors.grey)
+                          : null,
+                    ),
+                  ),
+                  SizedBox(height: 20.0),
+                  TextField(
+                    controller: _nameController,
+                    decoration: InputDecoration(
+                      labelText: "Name",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20.0),
+                  TextField(
+                    controller: _employeeIdController,
+                    decoration: InputDecoration(
+                      labelText: "Employee ID",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 30.0),
+                  ElevatedButton(
+                    onPressed: _saveProfile,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 12),
+                      child: Text(
+                        'Save',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: "NexaRegular",
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
