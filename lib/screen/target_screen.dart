@@ -40,33 +40,34 @@ class _TargetScreenState extends State<TargetScreen> {
   TextEditingController totalController = TextEditingController();
 
   void _submitForm() async {
-    if (_formKey.currentState!.validate()) {
-      const String scriptURL =
-          "https://script.google.com/macros/s/AKfycbzECDq3Ygd2vd3I1TbhdHYfQ26tCM10utoC3WqOuGm68T8taBhLpepstlFioT45E-2Q/exec";
-      String tempdate = currentDay;
-      print(tempdate);
-      String tempemployeeName = employeeName!;
-      print(tempemployeeName);
-      String temptargetNames = targetNamesController.text;
-      print(temptargetNames);
-      String tempprogress = progressController.text;
-      print(tempprogress);
-      String temptotal = totalController.text;
-      print(temptotal);
+  if (_formKey.currentState!.validate()) {
+    const String scriptURL = "https://script.google.com/macros/s/AKfycbwhqQt4Bc63Drw88UrHbms7hS1qeAEbRkImpY7hThHZDSt7f-Bq3TSA6r8yovsXglbX/exec";
+    String tempdate = currentDay;
+    String tempemployeeName = employeeName!;
+    String temptargetNames = targetNamesController.text;
+    String tempprogress = progressController.text;
+    String temptotal = totalController.text;
 
-      String queryString =
-          "?date=$tempdate&employeeName=$tempemployeeName&targetNames=$temptargetNames&progress=$tempprogress&total=$temptotal";
+    String queryString = "?date=$tempdate&employeeName=$tempemployeeName&targetNames=$temptargetNames&progress=$tempprogress&total=$temptotal";
+    var finalURI = Uri.parse(scriptURL + queryString);
+    var response = await http.get(finalURI);
 
-      var finalURI = Uri.parse(scriptURL + queryString);
-      var response = await http.get(finalURI);
-      //print(finalURI);
-
-      if (response.statusCode == 200) {
-        var bodyR = convert.jsonDecode(response.body);
-        print(bodyR);
-      }
+    if (response.statusCode == 200) {
+      var bodyR = convert.jsonDecode(response.body);
+      print(bodyR);
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Data sent successfully to Google Sheets!')),
+      );
+    } else {
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to send data. Try again later.')),
+      );
     }
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
