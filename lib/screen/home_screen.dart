@@ -10,8 +10,9 @@ import 'package:mis_tracker/screen/target_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final String? employeeId;
+  final String? employeeName; // Add employeeName parameter
 
-  const HomeScreen({Key? key,  this.employeeId}) : super(key: key);
+  const HomeScreen({Key? key, this.employeeId, this.employeeName}) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -42,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
         index: currentIndex,
         children: [
           CalendarScreen(),
-          TargetScreen(employeeId: widget.employeeId),
+          TargetScreen(employeeId: widget.employeeId, employeeName: widget.employeeName,),
           ProfileScreen(),
         ],
       ),

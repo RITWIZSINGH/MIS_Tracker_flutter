@@ -4,6 +4,8 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+    <string>We need access to your photo library for profile images</string>
 	<key>CFBundleDisplayName</key>
 	<string>Mis Tracker</string>
 	<key>CFBundleExecutable</key>

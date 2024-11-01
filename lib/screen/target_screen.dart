@@ -10,8 +10,11 @@ import 'dart:convert' as convert;
 
 class TargetScreen extends StatefulWidget {
   final String? employeeId;
+  final String? employeeName;
 
-  const TargetScreen({Key? key, required this.employeeId}) : super(key: key);
+  const TargetScreen(
+      {Key? key, required this.employeeId, required this.employeeName})
+      : super(key: key);
   @override
   State<TargetScreen> createState() => _TargetScreenState();
 }
@@ -25,12 +28,11 @@ class _TargetScreenState extends State<TargetScreen> {
     if (employeeName != null) {
       employeeNameController.text = employeeName!;
     } else {
-      // Handle the null case, e.g., show an error or set a default value
-      employeeNameController.text = "Unknown"; // Example default value
+      employeeNameController.text = "Unknown";
     }
   }
 
-  String currentDay = getcurrentDay();
+  String currentDay = getCurrentDay();
   final _formKey = GlobalKey<FormState>();
 
   // Controllers
@@ -39,35 +41,35 @@ class _TargetScreenState extends State<TargetScreen> {
   TextEditingController progressController = TextEditingController();
   TextEditingController totalController = TextEditingController();
 
-  void _submitForm() async {
-  if (_formKey.currentState!.validate()) {
-    const String scriptURL = "https://script.google.com/macros/s/AKfycbwhqQt4Bc63Drw88UrHbms7hS1qeAEbRkImpY7hThHZDSt7f-Bq3TSA6r8yovsXglbX/exec";
-    String tempdate = currentDay;
-    String tempemployeeName = employeeName!;
-    String temptargetNames = targetNamesController.text;
-    String tempprogress = progressController.text;
-    String temptotal = totalController.text;
+  Future<void> _submitForm() async {
+    if (_formKey.currentState!.validate()) {
+      const String scriptURL =
+          "https://script.google.com/macros/s/AKfycbwhqQt4Bc63Drw88UrHbms7hS1qeAEbRkImpY7hThHZDSt7f-Bq3TSA6r8yovsXglbX/exec";
 
-    String queryString = "?date=$tempdate&employeeName=$tempemployeeName&targetNames=$temptargetNames&progress=$tempprogress&total=$temptotal";
-    var finalURI = Uri.parse(scriptURL + queryString);
-    var response = await http.get(finalURI);
+      String tempDate = currentDay;
+      String tempEmployeeName = employeeNameController.text;
+      String tempTargetNames = targetNamesController.text;
+      String tempProgress = progressController.text;
+      String tempTotal = totalController.text.isNotEmpty
+          ? totalController.text
+          : "100"; // Default total
 
-    if (response.statusCode == 200) {
-      var bodyR = convert.jsonDecode(response.body);
-      print(bodyR);
-      // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Data sent successfully to Google Sheets!')),
-      );
-    } else {
-      // Show error message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to send data. Try again later.')),
-      );
+      String queryString =
+          "?date=$tempDate&employeeName=$tempEmployeeName&targetNames=$tempTargetNames&progress=$tempProgress&total=$tempTotal";
+
+      try {
+        final response = await http.get(Uri.parse(scriptURL + queryString));
+        if (response.statusCode == 200) {
+          print("Data successfully submitted to Google Sheets.");
+        } else {
+          print(
+              "Error: Failed to submit data with status ${response.statusCode}");
+        }
+      } catch (e) {
+        print("Error: $e");
+      }
     }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +117,7 @@ class _TargetScreenState extends State<TargetScreen> {
                       ),
                       SizedBox(height: 10),
                       Text(
-                        '${targetData.getTargetProgress(index) * 100}%',
+                        '${(targetData.getTargetProgress(index) * 100).toStringAsFixed(0)}%',
                         style: TextStyle(
                           fontSize: screenWidth / 18,
                           fontFamily: "NexaBold",
@@ -176,4 +178,8 @@ class _TargetScreenState extends State<TargetScreen> {
       ),
     );
   }
+}
+
+String getCurrentDay() {
+  return DateTime.now().toString().split(' ')[0]; // Example date format
 }

@@ -1,9 +1,11 @@
-// ignore_for_file: prefer_const_constructors, unnecessary_import, prefer_const_literals_to_create_immutables, unused_import, use_build_context_synchronously
+// ignore_for_file: prefer_const_constructors, use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:image_picker/image_picker.dart';
+import 'target_screen.dart';
 import 'dart:io';
+import 'package:flutter/foundation.dart'; // Import kIsWeb
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -13,13 +15,20 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  double screenHeight = 0;
-  double screenWidth = 0;
-
-  Color primary = const Color.fromARGB(255, 239, 48, 48);
-
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _employeeIdController = TextEditingController();
+
+  void _navigateToTargetScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TargetScreen(
+          employeeId: _employeeIdController.text,
+          employeeName: _nameController.text,
+        ),
+      ),
+    );
+  }
   File? _imageFile;
   String? _storedImagePath;
 
@@ -27,6 +36,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     _loadProfile();
+  }
+
+  Future<void> _pickImage() async {
+    try {
+      final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        final imagePath = pickedFile.path;
+        if (await File(imagePath).exists()) {
+          setState(() {
+            _imageFile = File(imagePath);
+          });
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('Selected image does not exist.'),
+          ));
+        }
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Failed to pick image: $e'),
+      ));
+    }
   }
 
   Future<void> _loadProfile() async {
@@ -45,7 +76,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _nameController.text = snapshot['name'];
           _employeeIdController.text = snapshot['employeeId'];
           _storedImagePath = snapshot['imagePath'];
-          if (_storedImagePath != null) {
+          if (_storedImagePath != null && File(_storedImagePath!).existsSync()) {
             _imageFile = File(_storedImagePath!);
           }
         });
@@ -54,16 +85,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Failed to load profile: $e'),
       ));
-    }
-  }
-
-  Future<void> _pickImage() async {
-    final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _imageFile = File(pickedFile.path);
-      });
     }
   }
 
@@ -92,7 +113,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   CircleAvatar(
                     radius: 40.0,
-                    backgroundImage: FileImage(_imageFile!),
+                    backgroundImage: kIsWeb
+                        ? NetworkImage(_imageFile!.path) // For web
+                        : FileImage(_imageFile!) as ImageProvider, // For mobile
                   ),
                   SizedBox(height: 10),
                   Text(
@@ -134,102 +157,54 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        elevation: 20.0,
-        shadowColor: Colors.black54,
-        title: Text(
-          'SAVE YOUR PROFILE',
-          style: TextStyle(
-            color: Colors.white,
-            fontFamily: "NexaBold",
-          ),
-        ),
-        backgroundColor: primary,
+        title: Text('SAVE YOUR PROFILE'),
+        backgroundColor: Colors.red,
       ),
       body: SafeArea(
-        child: KeyboardVisibilityBuilder(
-          builder: (context, isKeyboardVisible) {
-            return SingleChildScrollView(
-              padding: EdgeInsets.only(
-                left: 15.0,
-                right: 15.0,
-                bottom: isKeyboardVisible ? 20.0 : 0.0,
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(15.0),
+          child: Column(
+            children: [
+              GestureDetector(
+                onTap: _pickImage,
+                child: CircleAvatar(
+                  radius: 90,
+                  backgroundImage: _imageFile != null
+                      ? (kIsWeb
+                          ? NetworkImage(_imageFile!.path) // For web
+                          : FileImage(_imageFile!)) // For mobile
+                      : (_storedImagePath != null && File(_storedImagePath!).existsSync()
+                          ? (kIsWeb
+                              ? NetworkImage(_storedImagePath!)
+                              : FileImage(File(_storedImagePath!)))
+                          : null),
+                  child: _imageFile == null && _storedImagePath == null
+                      ? Icon(Icons.camera_alt, size: 40, color: Colors.grey)
+                      : null,
+                ),
               ),
-              child: Column(
-                children: [
-                  SizedBox(height: 25),
-                  Center(
-                    child: Text(
-                      'PROFILE',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: "NexaRegular",
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20.0),
-                  GestureDetector(
-                    onTap: _pickImage,
-                    child: CircleAvatar(
-                      radius: 90,
-                      backgroundImage: _imageFile != null
-                          ? FileImage(_imageFile!)
-                          : _storedImagePath != null
-                              ? FileImage(File(_storedImagePath!))
-                              : null,
-                      child: _imageFile == null && _storedImagePath == null
-                          ? Icon(Icons.camera_alt,
-                              size: 40, color: Colors.grey)
-                          : null,
-                    ),
-                  ),
-                  SizedBox(height: 20.0),
-                  TextField(
-                    controller: _nameController,
-                    decoration: InputDecoration(
-                      labelText: "Name",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20.0),
-                  TextField(
-                    controller: _employeeIdController,
-                    decoration: InputDecoration(
-                      labelText: "Employee ID",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 30.0),
-                  ElevatedButton(
-                    onPressed: _saveProfile,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 12),
-                      child: Text(
-                        'Save',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: "NexaRegular",
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+              SizedBox(height: 20.0),
+              TextField(
+                controller: _nameController,
+                decoration: InputDecoration(labelText: "Name"),
               ),
-            );
-          },
+              SizedBox(height: 20.0),
+              TextField(
+                controller: _employeeIdController,
+                decoration: InputDecoration(labelText: "Employee ID"),
+              ),
+              SizedBox(height: 30.0),
+              ElevatedButton(
+                onPressed: _saveProfile,
+                child: Text('Save'),
+              ),
+              SizedBox(height: 30.0),
+              ElevatedButton(
+                onPressed: _navigateToTargetScreen,
+                child: Text('Continue'),
+              ),
+            ],
+          ),
         ),
       ),
     );
